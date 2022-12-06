@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
-exports.TemplateData = class {
+exports.TemplateFunctionData = class {
     constructor(docstringParts, guessTypes, includeName, includeExtendedSummary) {
         this.name = docstringParts.name;
         this.decorators = docstringParts.decorators;

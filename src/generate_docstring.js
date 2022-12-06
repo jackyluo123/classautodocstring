@@ -10,8 +10,9 @@ const parse_1 = require("./parse/index");
 const logger_1 = require("./logger");
 
 exports.AutoDocstring = class {
-    constructor(editor) {
+    constructor(editor,docType) {
         this.editor = editor;
+        this.docType = docType;
     }
     generateDocstring() {
         if (this.editor === undefined || this.editor === null) {
@@ -32,15 +33,16 @@ exports.AutoDocstring = class {
     }
     generateDocstringSnippet(document, position) {
         const config = this.getConfig();
-        const docstringFactory = new docstring_factory_1.DocstringFactory(this.getTemplate());
+        const docstringFactory = new docstring_factory_1.DocstringFactory(this.getTemplate(), docType = this.docType);
         (0, logger_1.logDebug)("docstringFactory to string: " + docstringFactory.toString());
         
-        const docstringParts = (0, parse_1.parseDocument)(document, position.line);
+        const docstringParts = (0, parse_1.parseDocument)(document, position.line, this.docType);
         
         const defaultIndentation = (void 0, parse_1.getDefaultIndentation)(this.editor.options.insertSpaces, this.editor.options.tabSize);
         (0, logger_1.logDebug)("Default indentation: |" + defaultIndentation + "|");
         const indentation = (void 0, parse_1.getDocstringIndentation)(document, position.line, defaultIndentation);
         (0, logger_1.logDebug)("Docstring indentation: |" + indentation + "|");
+        
         const docstring = docstringFactory.generateDocstring(docstringParts, indentation);
         const docstring_test = "Example docstring";
         return new vs.SnippetString(docstring);
@@ -57,7 +59,12 @@ exports.AutoDocstring = class {
         // }
         // return (void 0, getCustomTemplate)(customTemplatePath);
         //const docstringFormat = vs.workspace.getConfiguration("autoclassdocstring").get("docstringFormat");
-        const docstringFormat = "googleClass";
+
+        var docstringFormat = "google";
+        if (this.docType === "class") {
+            docstringFormat = "googleClass";
+        }
+        
         return (void 0, getTemplate)(docstringFormat);
     }
     getConfig() {
