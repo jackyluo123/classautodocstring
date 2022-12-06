@@ -9,10 +9,12 @@ const logger_1 = require("../logger");
 
 function parseFunctionParameters(parameterTokens, body, functionName) {
     const decorators = parseDecorators(parameterTokens);
-    const args = parseArguments(parameterTokens);
+    const args = parseFunctionArguments(parameterTokens);
     const kwargs = parseKeywordArguments(parameterTokens);
     const returns = parseReturns(parameterTokens, body);
+    const yields = parseYields(parameterTokens,body);
     const exceptions = parseExceptions(body);
+
     (0, logger_1.logDebug)("    name: ");
     (0, logger_1.logDebug)("    " + functionName);
     (0, logger_1.logDebug)("    decorators: ");
@@ -23,42 +25,60 @@ function parseFunctionParameters(parameterTokens, body, functionName) {
     for (const kwarg of kwargs) {(0, logger_1.logDebug)("       " + kwarg.var + ":" + kwarg.type);}
     (0, logger_1.logDebug)("    returns: ");
     (0, logger_1.logDebug)("       " + returns.type);
-    // (0, logger_1.logDebug)("    yields: ");
-    // for (const yield of parseYields(parameterTokens, body)) {(0, logger_1.logDebug)("       " + yield);}
+    (0, logger_1.logDebug)("    yields: ");
+    for (const yield of yields) {(0, logger_1.logDebug)("       " + yield);}
     (0, logger_1.logDebug)("    exceptions: ");
     for (const exception of parseExceptions(body)) {(0, logger_1.logDebug)("        " + exception);}
+    
+    const name = functionName === "__init__" ? "Constructor" : functionName ;
     return {
-        name: functionName,
+        name: name,
         decorators: decorators,
         args: args,
         kwargs: kwargs,
         returns: returns,
-        //yields: parseYields(parameterTokens, body),
-        yields: undefined,
+        yields: yields,
         exceptions: exceptions
     };
 }
 exports.parseFunctionParameters = parseFunctionParameters;
 
 function parseClassParameters(parameterTokens, body, className) {
+    const decorators = parseDecorators(parameterTokens);
+    const args = parseClassArguments(parameterTokens);
+    const attributes = parseAttributes(body, className);
+    const exceptions = parseExceptions(body);
+
+    (0, logger_1.logDebug)("    name: ");
+    (0, logger_1.logDebug)("    " + functionName);
+    (0, logger_1.logDebug)("    decorators: ");
+    for (const decorator of decorators) {(0, logger_1.logDebug)("        " + decorator.name);}
+    (0, logger_1.logDebug)("    args: ");
+    for (const arg of args) {(0, logger_1.logDebug)("        " + arg);}
+    (0, logger_1.logDebug)("    attributes: ");
+    for (const attr of attributes) {(0, logger_1.logDebug)("        " + attr.var + ":" + attr.type);}
+    (0, logger_1.logDebug)("    exceptions: ");
+    for (const exception of parseExceptions(body)) {(0, logger_1.logDebug)("        " + exception);}
+
     return {
         name: className,
-        decorators: parseDecorators(parameterTokens),
-        args: parseArguments(parameterTokens),
-        attributes: parseAttributes(body),
-        exceptions: parseExceptions(body),
+        decorators: decorators,
+        args: args,
+        attributes: attributes,
+        exceptions: exceptions,
     };
 }
 exports.parseClassParameters = parseClassParameters;
 
-function parseAttributes(body) {
+function parseAttributes(body, className = "") {
     const attributes = [];
     const keywords = ["self.", "cls."];
+    if (className !== "") {keywords.push(className + ".");}
     // match a pattern of "word.word = "
     const patternVar = /(\w+.\w+)\s?=\s?/;
     for (const line of body) {
-        //const matchVar = line.match(patternVar);
         const matchVar = patternVar.exec(line);
+
         // If the match failed or does not include the keywords, skip this line
         if (matchVar === null || matchVar === undefined) {
             continue;
@@ -68,12 +88,17 @@ function parseAttributes(body) {
                 continue;
             }
         }
+
         var varName = matchVar[1].slice(matchVar[1].search(/\./)+1);
         var val = line.slice(line.search("=")+1).trim(); // +1 to not include the =
-        attributes.push({
+        const attr = {
             var: varName,
             type: (0, _1.guessType)(val),
-        });
+        };
+        // Only push new unique attributes
+        if (!inArray(attr.var,attributes.map(x => x.var))) {
+            attributes.push(attr);
+        }
     }
     return attributes;
 }
@@ -93,7 +118,7 @@ function parseDecorators(parameters) {
     return decorators;
 }
 
-function parseArguments(parameters) {
+function parseFunctionArguments(parameters) {
     const args = [];
     const excludedArgs = ["self", "cls"];
     const pattern = /^(\w+)/;
@@ -106,6 +131,20 @@ function parseArguments(parameters) {
             var: match[1],
             type: (0, _1.guessType)(param)
         });
+    }
+    return args;
+}
+
+function parseClassArguments(parameters) {
+    const args = [];
+    const excludedArgs = ["object"];
+    const pattern = /^(\w+)/;
+    for (const param of parameters) {
+        const match = param.trim().match(pattern);
+        if (match === null || param.includes("=") || inArray(param,excludedArgs)) {
+            continue;
+        }
+        args.push(match[1]);
     }
     return args;
 }
@@ -158,6 +197,20 @@ function parseExceptions(body) {
         exceptions.push({ type: match[1] });
     }
     return exceptions;
+}
+
+function parseYields(parameters, body) {
+    const returnType = parseReturnFromDefinition(parameters);
+    if (returnType != null && isIterator(returnType.type)) {
+        return returnType;
+    }
+    // To account for functions that yield but don't have a yield signature
+    const yieldType = returnType ? returnType.type : undefined;
+    const yieldInBody = parseFromBody(body, /yield /);
+    if (yieldInBody != null && yieldType != undefined) {
+        yieldInBody.type = `Iterator[${yieldType}]`;
+    }
+    return yieldInBody;
 }
 
 // UTILITY FUNCTIONS BELOW

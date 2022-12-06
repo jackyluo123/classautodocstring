@@ -40,13 +40,13 @@ function tokenizeFunctionDefinition(functionDefinition) {
     const definitionPattern = /(?:def|class)\s+\w+\s*\(([\s\S]*)\)\s*(->\s*(["']?)[\w\[\], |\.]*\3)?:\s*(?:#.*)?$/;
 
     const match = definitionPattern.exec(functionDefinition);
-    if (match === undefined || match === null || match[1] === undefined || match[1] === null) {
-        console.log("tokenizing function failed; no matches");
+    if (match === undefined || match === null || match[1] === undefined || match[1] === null || match[1] === "") {
         return [];
     }
     (0, logger_1.logDebug)("    Match found: Tokenizing the following string:");
     (0, logger_1.logDebug)("    " + match[1].toString());
     const tokens = tokenizeParameterString(match[1]);
+
     if (match[2] !== undefined && match[2] !== null) {
         tokens.push(match[2]);
     }
@@ -54,6 +54,7 @@ function tokenizeFunctionDefinition(functionDefinition) {
     for (var tokenLog of tokens) {
         (0, logger_1.logDebug)("    " + tokenLog);
     }
+
     return tokens;
 }
 exports.tokenizeFunctionDefinition = tokenizeFunctionDefinition;
@@ -63,15 +64,33 @@ exports.tokenizeFunctionDefinition = tokenizeFunctionDefinition;
  * @param {*} classDefinition 
  */
  function tokenizeClassDefinition(classDefinition) {
-    const definitionPattern = /(?:class)\s+\w+\s*(\(([\s\S]*)\))?/;
+    /**
+     * search for "class" but don't save it
+     * space
+     * class name (don't save since we are not interested in it)
+     * space
+     * \( left bracket
+     * save all chars up to the \) right bracket, not inclusive
+     */
+    const definitionPattern = /(?:class)\s+\w+\s*\(([\s\S]*)\)/;
     const match = definitionPattern.exec(classDefinition);
-    if (match === undefined || match[1] === undefined) {
+    if (match === undefined || match === null || match[1] === undefined || match[1] === null || match[1] === "") {
         return [];
     }
+
+    (0, logger_1.logDebug)("    Match found: Tokenizing the following string:");
+    (0, logger_1.logDebug)("    " + match[1].toString());
+
     const tokens = tokenizeParameterString(match[1]);
-    if (match[2] !== undefined) {
+    if (match[2] !== undefined && match[2] !== null) {
         tokens.push(match[2]);
     }
+
+    (0, logger_1.logDebug)("    Created the following tokens:");
+    for (var tokenLog of tokens) {
+        (0, logger_1.logDebug)("    " + tokenLog);
+    }
+
     return tokens;
 }
 exports.tokenizeClassDefinition = tokenizeClassDefinition;

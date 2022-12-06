@@ -1,7 +1,5 @@
 "use strict";
 
-const { DebugConsoleMode } = require("vscode");
-
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.deactivate = exports.activate = void 0;
 
