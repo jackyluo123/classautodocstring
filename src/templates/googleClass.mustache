@@ -1,0 +1,26 @@
+{{! Google Docstring Template }}
+{{summaryPlaceholder}}
+
+{{extendedSummaryPlaceholder}}
+{{#parametersExist}}
+
+Inherits:
+{{#args}}
+    {{var}} ({{typePlaceholder}}): {{descriptionPlaceholder}}
+{{/args}}
+{{/parametersExist}}
+{{#attributesExist}}
+
+Attributes:
+{{#attributes}}
+    {{var}} ({{typePlaceholder}}): {{descriptionPlaceholder}}
+{{/attributes}}
+{{/attributesExist}}
+{{#exceptionsExist}}
+
+Raises:
+{{#exceptions}}
+    {{type}}: {{descriptionPlaceholder}}
+{{/exceptions}}
+{{/exceptionsExist}}
+
