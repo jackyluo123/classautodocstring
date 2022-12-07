@@ -93,7 +93,7 @@ function parseAttributes(body, className = "") {
         var val = line.slice(line.search("=")+1).trim(); // +1 to not include the =
         const attr = {
             var: varName,
-            type: (0, _1.guessType)(val),
+            type: (0, _1.guessTypeFromValue)(val),
         };
         // Only push new unique attributes
         if (!inArray(attr.var,attributes.map(x => x.var))) {
@@ -144,7 +144,9 @@ function parseClassArguments(parameters) {
         if (match === null || param.includes("=") || inArray(param,excludedArgs)) {
             continue;
         }
-        args.push(match[1]);
+        args.push({
+            var: match[1]
+        });
     }
     return args;
 }

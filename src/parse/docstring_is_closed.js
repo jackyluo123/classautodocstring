@@ -18,6 +18,8 @@ exports.docstringIsClosed = docstringIsClosed;
 function quotesCloseExistingDocstring(lines, linePosition, charPosition, quoteStyle) {
     const linesBeforePosition = sliceUpToPosition(lines, linePosition, charPosition);
     let numberOfTripleQuotes = 0;
+
+    // If the previous line has a function or class definition, skip the logic; the line gets to pass for free
     for (const line of linesBeforePosition.reverse()) {
         if (line.includes("def ") || line.includes ("class ")) {
             break;
@@ -38,8 +40,7 @@ function quotesOpenExistingDocstring(lines, linePosition, charPosition, quoteSty
             return true;
         }
         if ((!(0, utilities_1.blankLine)(line) && (0, utilities_1.indentationOf)(line) < originalIndentation) ||
-            line.includes("def ") ||
-            line.includes("class ")) {
+            line.includes("def ") || line.includes("class ")) {
             return false;
         }
     }
