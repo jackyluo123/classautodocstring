@@ -65,22 +65,22 @@ function deactivate() { }
 exports.deactivate = deactivate;
 
 function validClassEnterActivation(document,position) {
-    const documentText = document.getText();
+    const docText = document.getText();
     const prefixStyle = getPrefixStyle();
     const quoteStyle = getQuoteStyle();
-    const validPrefix = (0, parse_1.validDocstringPrefix)(documentText, position.line, position.character, prefixStyle);
-    const closedDocstring = !(0, parse_1.docstringIsClosed)(documentText, position.line, position.character, quoteStyle);
-    const validClassPrecedingLine = (0, parse_1.validClassPrecedingLine)(documentText, position.line);
+    const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
+    const closedDocstring = !(0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
+    const validClassPrecedingLine = (0, parse_1.validClassPrecedingLine)(docText, position.line);
     return validPrefix && closedDocstring && validClassPrecedingLine;
 }
 
 function validFunctionEnterActivation(document,position) {
-    const documentText = document.getText();
+    const docText = document.getText();
     const prefixStyle = getPrefixStyle();
     const quoteStyle = getQuoteStyle();
-    const validPrefix = (0, parse_1.validDocstringPrefix)(documentText, position.line, position.character, prefixStyle);
-    const closedDocstring = !(0, parse_1.docstringIsClosed)(documentText, position.line, position.character, quoteStyle);
-    const validFunctionPrecedingLine = (0, parse_1.validFunctionPrecedingLine)(documentText, position.line);
+    const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
+    const closedDocstring = !(0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
+    const validFunctionPrecedingLine = (0, parse_1.validFunctionPrecedingLine)(docText, position.line);
     return validPrefix && closedDocstring && validFunctionPrecedingLine;
 }
 
@@ -91,12 +91,12 @@ function validFunctionEnterActivation(document,position) {
  * @returns 
  */
  function validUpdateActivation(document, position) {
-    const docString = document.getText();
+    const docText = document.getText();
     const prefixStyle = getPrefixStyle();
     const quoteStyle = getQuoteStyle();
-    const validPrefix = (0, parse_1.validDocstringPrefix)(docString, position.line, position.character, prefixStyle);
-    const closedDocstring = (0, parse_1.docstringIsClosed)(docString, position.line, position.character, quoteStyle);
-    const validDocstring = (0, parse_1.validExistingDocstring)(docString, position.line, quoteStyle);
+    const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
+    const closedDocstring = (0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
+    const validDocstring = (0, parse_1.validExistingDocstring)(docText, position.line, quoteStyle);
     return (validPrefix && closedDocstring && validDocstring);
 }
 

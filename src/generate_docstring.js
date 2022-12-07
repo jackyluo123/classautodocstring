@@ -5,12 +5,11 @@ const path = require("path");
 const vs = require("vscode");
 const fs_1 = require("fs");
 const docstring_factory_1 = require("./docstring_factory");
-const docstring_parts_1 = require("./docstring_parts");
 const parse_1 = require("./parse/index");
 const logger_1 = require("./logger");
 
 exports.AutoDocstring = class {
-    constructor(editor,docType) {
+    constructor(editor,docType="function") {
         this.editor = editor;
         this.docType = docType;
     }
@@ -32,8 +31,8 @@ exports.AutoDocstring = class {
         return success;
     }
     generateDocstringSnippet(document, position) {
-        const config = this.getConfig();
-        const docstringFactory = new docstring_factory_1.DocstringFactory(this.getTemplate(), docType = this.docType);
+        // const config = this.getConfig();
+        const docstringFactory = new docstring_factory_1.DocstringFactory(this.getTemplate(), this.docType);
         (0, logger_1.logDebug)("docstringFactory to string: " + docstringFactory.toString());
         
         const docstringParts = (0, parse_1.parseDocument)(document, position.line, this.docType);
@@ -48,7 +47,7 @@ exports.AutoDocstring = class {
         return new vs.SnippetString(docstring);
     }
     getTemplate() {
-        const config = this.getConfig();
+        // const config = this.getConfig();
         // let customTemplatePath = config.get("customTemplatePath").toString();
         // if (customTemplatePath === "") {
         // 	const docstringFormat = config.get("docstringFormat").toString();
@@ -60,11 +59,7 @@ exports.AutoDocstring = class {
         // return (void 0, getCustomTemplate)(customTemplatePath);
         //const docstringFormat = vs.workspace.getConfiguration("autoclassdocstring").get("docstringFormat");
 
-        var docstringFormat = "google";
-        if (this.docType === "class") {
-            docstringFormat = "googleClass";
-        }
-        
+        const docstringFormat = this.docType === "class" ? "googleClass" : "google";
         return (void 0, getTemplate)(docstringFormat);
     }
     getConfig() {

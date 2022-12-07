@@ -133,9 +133,6 @@ class TemplateClassData {
     descriptionPlaceholder() {
         return "${@@@:_description_}";
     }
-    argsExist() {
-        return this.args.length > 0;
-    }
     parametersExist() {
         return this.args.length > 0;
     }
@@ -149,19 +146,11 @@ class TemplateClassData {
         for (const attr of this.attributes) {
             attr.type = undefined;
         }
-        for (const arg of this.args) {
-            arg.type = undefined;
-        }
     }
     addDefaultTypePlaceholders(placeholder) {
         for (const attr of this.attributes) {
             if (attr.type === undefined || attr.type === null) {
                 attr.type = placeholder;
-            }
-        }
-        for (const arg of this.args) {
-            if (arg.type === undefined || attr.type === null) {
-                arg.type = placeholder;
             }
         }
     }

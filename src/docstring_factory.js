@@ -7,7 +7,7 @@ const ts_dedent_1 = require("ts-dedent");
 const logger_1 = require("./logger");
 
 exports.DocstringFactory = class {
-    constructor(template, quoteStyle = '"""', startOnNewLine = true, includeDescription = false, includeName = false, guessTypes = true, docType = "function") {
+    constructor(template, docType = "function", quoteStyle = '"""', startOnNewLine = true, includeDescription = false, includeName = false, guessTypes = true) {
         this.quoteStyle = quoteStyle;
         this.startOnNewLine = startOnNewLine;
         this.guessTypes = guessTypes;
