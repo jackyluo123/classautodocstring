@@ -5,8 +5,6 @@ exports.getClassDefinition = void 0;
 const utilities_1 = require("./utilities");
 const logger_1 = require("../logger");
 
-
-
 /**
  * Based off of python function autodoc extension
  * For some reason this function does not return the function definition
@@ -21,22 +19,40 @@ function getFunctionDefinition(document, linePosition) {
     const precedingLines = getPrecedingLines(document, linePosition);
     (0, logger_1.logDebug)("    Got preceding lines!");
     const precedingText = precedingLines.join(" ");
+    // LEGACY feature where previous line must be the function definition
+    // That check is already performed on extension.js
     // Don't parse if the preceding line is blank
-    const precedingLine = precedingLines[precedingLines.length - 1];
-    if (precedingLine === undefined || precedingLine === null || (0, utilities_1.blankLine)(precedingLine)) {
-        return "";
-    }
+    // const precedingLine = precedingLines[precedingLines.length - 1];
+    // if (precedingLine === undefined || precedingLine === null || (0, utilities_1.blankLine)(precedingLine)) {
+    //     return "";
+    // }
     const pattern = /\b((async\s+)?\s*def)\b/g;
-    // Get starting index of last def match in the preceding text
-    let index;
-    while (pattern.test(precedingText)) {
-        index = pattern.lastIndex - RegExp.lastMatch.length;
+    
+    var i = precedingLines.length-1;
+    while (i >= 0) {
+        var precedingLine = precedingLines[i];
+        if (precedingLine === undefined || precedingLine === null || (0, utilities_1.blankLine)(precedingLine)) {
+            i = i - 1;
+            continue;
+        }
+        if (pattern.test(precedingLine)) {
+            return precedingLine;
+        }
+        i = i - 1;
     }
-    if (index === undefined) {
-        return "";
-    }
-    const lastFunctionDef = precedingText.slice(index);
-    return lastFunctionDef.trim();
+    return "";
+
+
+    // // Get starting index of last def match in the preceding text
+    // let index;
+    // while (pattern.test(precedingText)) {
+    //     index = pattern.lastIndex - RegExp.lastMatch.length;
+    // }
+    // if (index === undefined) {
+    //     return "";
+    // }
+    // const lastFunctionDef = precedingText.slice(index);
+    // return lastFunctionDef.trim();
 }
 exports.getFunctionDefinition = getFunctionDefinition;
 
@@ -48,11 +64,11 @@ exports.getFunctionDefinition = getFunctionDefinition;
  */
  function getClassDefinition(document, linePosition) {
     (0, logger_1.logDebug)("    Grabbing preceding lines...");
+    // KEEP IN MIND getPrecedingLines will get rid of comments
     const precedingLines = getPrecedingLines(document, linePosition);
     (0, logger_1.logDebug)("    Got preceding lines!");
     const precedingText = precedingLines.join(" ");
-
-    var i = precedingLines.length - 1;
+    
     const pattern = /\b(\s*class)\b/g;
     // Don't parse if the preceding line is blank
     // const precedingLine = precedingLines[precedingLines.length - 1];
@@ -71,17 +87,18 @@ exports.getFunctionDefinition = getFunctionDefinition;
     // }
     // const lastClassDef = precedingText.slice(index);
     // return lastClassDef.trim();
+
+    var i = precedingLines.length-1;
     while (i >= 0) {
         var precedingLine = precedingLines[i];
         if (precedingLine === undefined || precedingLine === null || (0, utilities_1.blankLine)(precedingLine)) {
-            index = index - 1;
+            i = i - 1;
             continue;
         }
-        let index;
         if (pattern.test(precedingLine)) {
             return precedingLine;
         }
-        index = index - 1;
+        i = i - 1;
     }
     return "";
 }

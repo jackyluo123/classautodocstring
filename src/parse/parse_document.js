@@ -10,7 +10,7 @@ function parseDocument(document, positionLine, docType = "function") {
     if (docType === "function") {
         (0, logger_1.logDebug)("Grabbing Function Definition...");
         const functionDefinition = (0, _1.getFunctionDefinition)(document, positionLine);
-        (0, logger_1.logDebug)("Function Definition: " + functionDefinition.toString());
+        (0, logger_1.logDebug)("Function Definition: " + functionDefinition);
 
         (0, logger_1.logDebug)("Grabbing Function Body...");
         const functionBody = (0, _1.getFunctionBody)(document, positionLine);
@@ -32,20 +32,20 @@ function parseDocument(document, positionLine, docType = "function") {
     } else if (docType === "class") {
         (0, logger_1.logDebug)("Grabbing Class Definition...");
         const classDefinition = (0, _1.getClassDefinition)(document, positionLine);
-        (0, logger_1.logDebug)("Class Definition: " + classDefinition.toString());
+        (0, logger_1.logDebug)("Class Definition: " + classDefinition);
     
         (0, logger_1.logDebug)("Grabbing Class Body...");
         const classBody = (0, _1.getClassBody)(document, positionLine);
         (0, logger_1.logDebug)("Class Body: " + classBody);
-    
+        
         (0, logger_1.logDebug)("Grabbing Class Name...");
         const className = (0, _1.getClassName)(classDefinition);  
         (0, logger_1.logDebug)("Class Name: " + className);
-    
+
         (0, logger_1.logDebug)("Tokenizing class definition...");
         const parameterTokens = (0, _1.tokenizeClassDefinition)(classDefinition);
         (0, logger_1.logDebug)("Tokenizing finished!");
-    
+        
         (0, logger_1.logDebug)("Creating docstringParts...");
         const docstringParts = (0, _1.parseClassParameters)(parameterTokens, classBody, className);
         (0, logger_1.logDebug)("docstringParts creation successful!");

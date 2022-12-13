@@ -3,30 +3,35 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.parseFunctionParameters = void 0;
 exports.parseClassParameters = void 0;
 
-const { isMapIterator } = require("util/types");
 const _1 = require(".");
 const logger_1 = require("../logger");
 
 function parseFunctionParameters(parameterTokens, body, functionName) {
-    const decorators = parseDecorators(parameterTokens);
-    const args = parseFunctionArguments(parameterTokens);
-    const kwargs = parseKeywordArguments(parameterTokens);
-    const returns = parseReturns(parameterTokens, body);
-    const yields = parseYields(parameterTokens,body);
-    const exceptions = parseExceptions(body);
 
     (0, logger_1.logDebug)("    name: ");
     (0, logger_1.logDebug)("    " + functionName);
+
+    const decorators = parseDecorators(parameterTokens);
     (0, logger_1.logDebug)("    decorators: ");
     for (const decorator of decorators) {(0, logger_1.logDebug)("        " + decorator.name);}
+
+    const args = parseFunctionArguments(parameterTokens);
     (0, logger_1.logDebug)("    args: ");
     for (const arg of args) {(0, logger_1.logDebug)("        " + arg.var + ":" + arg.type);}
+
+    const kwargs = parseKeywordArguments(parameterTokens);
     (0, logger_1.logDebug)("    kwargs: ");
     for (const kwarg of kwargs) {(0, logger_1.logDebug)("       " + kwarg.var + ":" + kwarg.type);}
+
+    const returns = parseReturns(parameterTokens, body);
     (0, logger_1.logDebug)("    returns: ");
     (0, logger_1.logDebug)("       " + returns.type);
-    (0, logger_1.logDebug)("    yields: ");
-    for (const yield of yields) {(0, logger_1.logDebug)("       " + yield);}
+
+    const yields = parseYields(parameterTokens,body); // Returns undefined
+    // (0, logger_1.logDebug)("    yields: ");
+    // for (const _yield of yields) {(0, logger_1.logDebug)("       " + _yield);}
+
+    const exceptions = parseExceptions(body);
     (0, logger_1.logDebug)("    exceptions: ");
     for (const exception of parseExceptions(body)) {(0, logger_1.logDebug)("        " + exception);}
     
@@ -44,19 +49,22 @@ function parseFunctionParameters(parameterTokens, body, functionName) {
 exports.parseFunctionParameters = parseFunctionParameters;
 
 function parseClassParameters(parameterTokens, body, className) {
-    const decorators = parseDecorators(parameterTokens);
-    const args = parseClassArguments(parameterTokens);
-    const attributes = parseAttributes(body, className);
-    const exceptions = parseExceptions(body);
-
     (0, logger_1.logDebug)("    name: ");
-    (0, logger_1.logDebug)("    " + functionName);
+    (0, logger_1.logDebug)("    " + className);
+
+    const decorators = parseDecorators(parameterTokens);
     (0, logger_1.logDebug)("    decorators: ");
     for (const decorator of decorators) {(0, logger_1.logDebug)("        " + decorator.name);}
+
+    const args = parseClassArguments(parameterTokens);
     (0, logger_1.logDebug)("    args: ");
-    for (const arg of args) {(0, logger_1.logDebug)("        " + arg);}
+    for (const arg of args) {(0, logger_1.logDebug)("        " + arg.var);}
+
+    const attributes = parseAttributes(body, className);
     (0, logger_1.logDebug)("    attributes: ");
     for (const attr of attributes) {(0, logger_1.logDebug)("        " + attr.var + ":" + attr.type);}
+
+    const exceptions = parseExceptions(body);
     (0, logger_1.logDebug)("    exceptions: ");
     for (const exception of parseExceptions(body)) {(0, logger_1.logDebug)("        " + exception);}
 
@@ -202,17 +210,18 @@ function parseExceptions(body) {
 }
 
 function parseYields(parameters, body) {
-    const returnType = parseReturnFromDefinition(parameters);
-    if (returnType != null && isIterator(returnType.type)) {
-        return returnType;
-    }
-    // To account for functions that yield but don't have a yield signature
-    const yieldType = returnType ? returnType.type : undefined;
-    const yieldInBody = parseFromBody(body, /yield /);
-    if (yieldInBody != null && yieldType != undefined) {
-        yieldInBody.type = `Iterator[${yieldType}]`;
-    }
-    return yieldInBody;
+    // const returnType = parseReturnFromDefinition(parameters);
+    // if (returnType !== null && isIterator(returnType.type)) {
+    //     return returnType;
+    // }
+    // // To account for functions that yield but don't have a yield signature
+    // const yieldType = returnType ? returnType.type : undefined;
+    // const yieldInBody = parseFromBody(body, /yield /);
+    // if (yieldInBody !== null && yieldType !== undefined) {
+    //     yieldInBody.type = `Iterator[${yieldType}]`;
+    // }
+    // return yieldInBody;
+    return undefined;
 }
 
 // UTILITY FUNCTIONS BELOW
