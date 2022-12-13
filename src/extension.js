@@ -6,7 +6,10 @@ exports.deactivate = exports.activate = void 0;
 const vs = require("vscode");
 const parse_1 = require("./parse/index");
 const generate_docstring_1 = require("./generate_docstring");
-const { validFunctionPrecedingLine } = require("./parse/valid_preceding_line");
+const update_docstring_1 = require("./update_docstring");
+const logger_1 = require("./logger");
+
+
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 function activate(context) {
@@ -25,6 +28,17 @@ function activate(context) {
             console.log('Error occured');
         }
     }));
+    context.subscriptions.push(vs.commands.registerCommand('autoclassdocstring.updateFunctionDocstring', () => {
+        const editor = vs.window.activeTextEditor;
+        const autoDocstring = new update_docstring_1.UpdateAutoDocstring(editor,"function");
+        try {
+            return autoDocstring.updateDocstring();
+        }
+        catch (error) {
+            console.log('Error occured');
+        }
+    }));
+
     context.subscriptions.push(vs.commands.registerCommand('autoclassdocstring.generateClassDocstring', () => {
         const editor = vs.window.activeTextEditor;
         const autoDocstring = new generate_docstring_1.AutoDocstring(editor,"class");
@@ -35,12 +49,25 @@ function activate(context) {
             console.log('Error occured');
         }
     }));
+    context.subscriptions.push(vs.commands.registerCommand('autoclassdocstring.updateClassDocstring', () => {
+        const editor = vs.window.activeTextEditor;
+        const autoDocstring = new update_docstring_1.UpdateAutoDocstring(editor,"class");
+        try {
+            return autoDocstring.updateDocstring();
+        }
+        catch (error) {
+            console.log('Error occured');
+        }
+    }));
+
+
     ['python'].map((language) => {
         context.subscriptions.push(vs.languages.registerCompletionItemProvider(language, {
             provideCompletionItems: (document, position, _) => {
                 if (validClassEnterActivation(document,position) || validFunctionEnterActivation(document,position)) {
                     return [new AutoDocstringCompletionItem(document, position)];
-                } else if (validUpdateActivation(document, position)) {
+                } 
+                if (validUpdateActivation(document, position)) {
                     return [new AutoDocstringUpdateCompletionItem(document, position)];
                 }
             },
@@ -69,7 +96,8 @@ function validClassEnterActivation(document,position) {
     const prefixStyle = getPrefixStyle();
     const quoteStyle = getQuoteStyle();
     const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
-    const closedDocstring = !(0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
+    // Normally we want the closedDocstring to be false, but since the prefix style != the quote style, we want this to be true
+    const closedDocstring = (0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
     const validClassPrecedingLine = (0, parse_1.validClassPrecedingLine)(docText, position.line);
     return validPrefix && closedDocstring && validClassPrecedingLine;
 }
@@ -79,7 +107,7 @@ function validFunctionEnterActivation(document,position) {
     const prefixStyle = getPrefixStyle();
     const quoteStyle = getQuoteStyle();
     const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
-    const closedDocstring = !(0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
+    const closedDocstring = (0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
     const validFunctionPrecedingLine = (0, parse_1.validFunctionPrecedingLine)(docText, position.line);
     return validPrefix && closedDocstring && validFunctionPrecedingLine;
 }
@@ -94,48 +122,57 @@ function validFunctionEnterActivation(document,position) {
     const docText = document.getText();
     const prefixStyle = getPrefixStyle();
     const quoteStyle = getQuoteStyle();
-    const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
+    // const validPrefix = (0, parse_1.validDocstringPrefix)(docText, position.line, position.character, prefixStyle);
     const closedDocstring = (0, parse_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
-    const validDocstring = (0, parse_1.validExistingDocstring)(docText, position.line, quoteStyle);
-    return (validPrefix && closedDocstring && validDocstring);
-}
-
-
-class AutoDocstringCompletionItem extends vs.CompletionItem {
-    constructor(document, position) {
-        if ((0, parse_1.validFunctionPrecedingLine)(document,position)) {
-            super("Generate Function Docstring", vs.CompletionItemKind.Snippet);
-            this.command = {
-                command: "autoclassdocstring.generateFunctionDocstring",
-                title: "Generate Function Docstring",
-            };
-        } else if ((0, parse_1.validClassPrecedingLine)(document,position)) {
-            super("Generate Class Docstring", vs.CompletionItemKind.Snippet);
-            this.command = {
-                command: "autoclassdocstring.generateClassDocstring",
-                title: "Generate Class Docstring",
-            };
-        }
-        this.insertText = "";
-        this.filterText = getPrefixStyle();
-        this.sortText = "\0";
-        this.range = new vs.Range(new vs.Position(position.line, 0), position);
+    const validDocstring = (0, parse_1.validExistingDocstring)(docText, position.line, quoteStyle, prefixStyle);
+    // if (validPrefix) {
+    //     console.log("Valid Prefix detected");
+    // }
+    if (closedDocstring) {
+        console.log ("Docstring is closed");
     }
+    if (validDocstring) {
+        console.log ("Valid existing docstring");
+    }
+    return (closedDocstring && validDocstring);
 }
 
 class AutoDocstringUpdateCompletionItem extends vs.CompletionItem {
     constructor(document, position) {
-        if ((0, parse_1.wasFunctionDocstring)(document, position)) {
+
+        if ((0, parse_1.wasFunctionDocstring)(document.getText(), position.line)) {
             super("Update Function Docstring", vs.CompletionItemKind.Snippet);
             this.command = {
                 command: "autoclassdocstring.updateFunctionDocstring",
                 title: "Update Function Docstring",
             };
-        } else if ((0, parse_1.wasClassDocstring)(document, position)) {
+        } else if ((0, parse_1.wasClassDocstring)(document.getText(), position.line)) {
             super("Update Class Docstring", vs.CompletionItemKind.Snippet);
             this.command = {
                 command: "autoclassdocstring.updateClassDocstring",
                 title: "Update Class Docstring",
+            };
+        }
+        this.insertText = document.getText().split("\n")[position.line].replace(getPrefixStyle(),"").replace("\r","");
+        this.filterText = getQuoteStyle() + getPrefixStyle();
+        this.sortText = "\0";
+        this.range = new vs.Range(new vs.Position(position.line, 0), position);
+    }
+}
+
+class AutoDocstringCompletionItem extends vs.CompletionItem {
+    constructor(document, position) {
+        if ((0, parse_1.validFunctionPrecedingLine)(document.getText(),position.line)) {
+            super("Generate Function Docstring", vs.CompletionItemKind.Snippet);
+            this.command = {
+                command: "autoclassdocstring.generateFunctionDocstring",
+                title: "Generate Function Docstring",
+            };
+        } else if ((0, parse_1.validClassPrecedingLine)(document.getText(),position.line)) {
+            super("Generate Class Docstring", vs.CompletionItemKind.Snippet);
+            this.command = {
+                command: "autoclassdocstring.generateClassDocstring",
+                title: "Generate Class Docstring",
             };
         }
         this.insertText = "";

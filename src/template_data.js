@@ -52,11 +52,14 @@ exports.TemplateFunctionData = class {
     exceptionsExist() {
         return this.exceptions.length > 0;
     }
+    decoratorsExist() {
+        return this.decorators.length > 0;
+    }
     returnsExist() {
-        return this.returns !== undefined;
+        return this.returns !== undefined && this.returns !== null;
     }
     yieldsExist() {
-        return this.yields !== undefined;
+        return this.yields !== undefined && this.yields !== null;
     }
     removeTypes() {
         for (const arg of this.args) {
@@ -141,6 +144,9 @@ class TemplateClassData {
     }
     exceptionsExist() {
         return this.exceptions.length > 0;
+    }
+    decoratorsExist() {
+        return this.decorators.length > 0;
     }
     removeTypes() {
         for (const attr of this.attributes) {

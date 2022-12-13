@@ -43,7 +43,7 @@ exports.AutoDocstring = class {
         (0, logger_1.logDebug)("Docstring indentation: |" + indentation + "|");
         
         const docstring = docstringFactory.generateDocstring(docstringParts, indentation);
-        const docstring_test = "Example docstring";
+    
         return new vs.SnippetString(docstring);
     }
     getTemplate() {
