@@ -183,6 +183,7 @@ function compareClassDocstringParts (newDocstringParts, oldDocstringParts) {
     const compareAnswer = {
         name: false,
         decorators: false,
+        functions: false,
         args: false,
         attributes: false,
         exceptions: false,
@@ -239,6 +240,12 @@ function compareClassDocstringParts (newDocstringParts, oldDocstringParts) {
     //     compareAnswer.decorators = true;
     // }
     (0, logger_1.logDebug)("    " + compareAnswer.decorators);
+
+
+    // ************************************ Compare the function names
+    (0, logger_1.logDebug)("    Comparing functions...");
+    
+    (0, logger_1.logDebug)("    " + compareAnswer.functions);
 
     // ************************************ Compare the arguments (inheritence)
     // This comparison is if the current parsing has elements that are not found in the old docstring
