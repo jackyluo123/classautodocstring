@@ -2,7 +2,7 @@
 	"name": "autoclassdocstring",
 	"displayName": "autoclassdocstring",
 	"description": "Generates docstring for classes for class attributes",
-	"version": "0.0.1",
+	"version": "1.0.0",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
@@ -66,21 +66,11 @@
 					"default": "google",
 					"description": "Which docstring format to use"
 				},
-				"autoclassdocstring.customTemplatePath": {
-					"type": "string",
-					"default": "",
-					"description": "Path to custom docstring template"
-				},
-				"autoclassdocstring.generateDocstringOnEnter": {
-					"type": "boolean",
-					"default": true,
-					"description": "Generate docstring on entering enter after opening a docstring"
-				},
 				"autoclassdocstring.logLevel": {
 					"type": "string",
-					"default": "Debug",
+					"default": "None",
 					"scope": "window",
-					"description": "Output log information"
+					"description": "Output log information (None, Info, Debug)"
 				}
 			}
 		}
@@ -110,6 +100,9 @@
 	"dependencies": {
 		"mustache": "^4.2.0",
 		"ts-dedent": "^2.2.0"
+	},
+	"vsce": {
+		"baseImagesUrl": "/images"
 	},
 	"__metadata": {
 		"isApplicationScoped": false,
