@@ -60,6 +60,10 @@ function parseClassParameters(parameterTokens, body, className) {
     (0, logger_1.logDebug)("    args: ");
     for (const arg of args) {(0, logger_1.logDebug)("        " + arg.var);}
 
+    const functions = parseFunctionNames(body);
+    (0, logger_1.logDebug)("    functions: ");
+    for (const funct of functions) {(0, logger_1.logDebug)("        " + funct.name);}
+
     const attributes = parseAttributes(body, className);
     (0, logger_1.logDebug)("    attributes: ");
     for (const attr of attributes) {(0, logger_1.logDebug)("        " + attr.var + ":" + attr.type);}
@@ -71,6 +75,7 @@ function parseClassParameters(parameterTokens, body, className) {
     return {
         name: className,
         decorators: decorators,
+        functions: functions,
         args: args,
         attributes: attributes,
         exceptions: exceptions,
@@ -82,8 +87,8 @@ function parseAttributes(body, className = "") {
     const attributes = [];
     const keywords = ["self.", "cls."];
     if (className !== "") {keywords.push(className + ".");}
-    // match a pattern of "word.word = "
-    const patternVar = /(\w+.\w+)\s?=\s?/;
+    // match a pattern of "word.word = ". Do not match ==
+    const patternVar = /(\w+.\w+)\s?=\s?[^=]/;
     for (const line of body) {
         const matchVar = patternVar.exec(line);
 
@@ -91,10 +96,9 @@ function parseAttributes(body, className = "") {
         if (matchVar === null || matchVar === undefined) {
             continue;
         }
-        for (var keyword of keywords) {
-            if (!inArray(keyword,keywords)) {
-                continue;
-            }
+        var keyword = matchVar[1].slice(0,matchVar[1].search(/\./)+1);
+        if (!inArray(keyword,keywords)) {
+            continue;
         }
 
         var varName = matchVar[1].slice(matchVar[1].search(/\./)+1);
@@ -109,6 +113,25 @@ function parseAttributes(body, className = "") {
         }
     }
     return attributes;
+}
+
+/**
+ * For grabbing function names from a class body
+ * @param {*} body class body
+ */
+function parseFunctionNames(body) {
+    const functions = [];
+    const pattern = /\b((async\s+)?\s*def)\b/;
+    const patternName = /def\s(\w+)/;
+    for (var line of body) {
+        if (pattern.test(line)) {
+            var name = line.match(patternName);
+            // Do not need to worry about duplicate names since it would be illegal in Python anyways
+            functions.push({
+                name: name
+            });
+        }
+    }
 }
 
 function parseDecorators(parameters) {

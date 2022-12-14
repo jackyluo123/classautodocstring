@@ -79,4 +79,4 @@ var get_docstring_identation_1 = require("./get_docstring_indentation");
 Object.defineProperty(exports, "getDocstringIndentation", { enumerable: true, get: function () { return get_docstring_identation_1.getDocstringIndentation; } });
 
 var parse_old_docstring_1 = require("./parse_old_docstring");
-Object.defineProperty(exports, "parseOldDocstring", { enumerable: true, get: function () { return parse_old_docstring_1.parseOldDocstring; } });
+Object.defineProperty(exports, "", { enumerable: true, get: function () { return parse_old_docstring_1.parseOldDocstring; } });

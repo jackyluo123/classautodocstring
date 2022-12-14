@@ -18,6 +18,10 @@ function parseOldDocstring(document, positionLine, docType = "function") {
         const attributes = getCommentAttributes(body);
         (0, logger_1.logDebug)("    Got comment attributes: " + attributes.map(a => a.var));
 
+        (0, logger_1.logDebug)("    Getting comment functions...");
+        const functions = getCommentClassFunctions(body);
+        (0, logger_1.logDebug)("    Got comment functions: " + functions.map(a => a.name));
+
         (0, logger_1.logDebug)("    Getting comment arguments...");
         const args = getCommentClassArguments(body);
         (0, logger_1.logDebug)("    Got comment arguments: " + args.map(a => a.var));
@@ -30,11 +34,12 @@ function parseOldDocstring(document, positionLine, docType = "function") {
             name: undefined,
             args: args,
             decorators: [],
+            functions: functions,
             attributes: attributes,
-            exceptions: exceptions
+            exceptions: exceptions,
         };
     }
-    if (docType = "function") {
+    if (docType === "function") {
         (0, logger_1.logDebug)("    Getting comment block...");
         // Assumes the user input the update command on the last line of the comment block
         const body = getCommentBlock(document, positionLine);
@@ -114,6 +119,33 @@ function getCommentAttributes(lines) {
         }
     }
     return attributes;
+}
+
+function getCommentClassFunctions(lines) {
+    let foundFunctions = false;
+    const functions = [];
+    const functNamePattern = /\s*(\w*)/;
+    for (var line of lines) {
+        if (line.includes("Methods:")) {
+            foundFunctions = true;
+            continue;
+        } else if ((0, utilities_1.blankLine)(line) ||
+        line.trim().indexOf("def ") === 0 || 
+        line.trim().indexOf("class ") === 0) {
+            // Just in case we went past the comment block
+            foundFunctions = false;
+        } else if (!line.includes(":")) {
+            continue; // Existing function descriptions may be over several lines
+        }
+
+        if (foundFunctions === true) {
+            var nameMatch = functNamePattern.exec(line);
+            functions.push({
+                name: nameMatch[1],
+            })
+        }
+    }
+    return functions;
 }
 
 function getCommentClassArguments(lines) {

@@ -18,9 +18,23 @@ exports.getIndentation = getIndentation;
  * @param {*} lines to be preprocessed
  */
 function preprocessLines(lines) {
-    return lines
-        .map(line => line.trim())
-        .filter((line) => !line.startsWith("#"));
+    const processedLines = [];
+    let doubQuoteCount = 0;
+    let singQuoteCount = 0;
+    for (var line of lines) {
+        if (line.includes("'''")) {
+            singQuoteCount++;
+        }
+        if (line.includes('"""')) {
+            doubQuoteCount++;
+        }
+        if (singQuoteCount % 2 === 0 && doubQuoteCount % 2 === 0) {
+            processedLines.push(line);
+        }
+    }
+    return processedLines
+        .map(processedLines => processedLines.trim())
+        .filter((processedLines) => !processedLines.startsWith("#"));
 }
 exports.preprocessLines = preprocessLines;
 
