@@ -6,6 +6,9 @@ Docstring updating created in-house by Jacky.
 
 For Demos, see the GitLab repository.
 
+![Function Demo](/images/FunctionDemoBetter.gif)
+![Class Demo](/images/ClassDemoBetter.gif)
+
 ## Features
 
 -	Quickly genereate/update a docstring snippet that can be tabbed through.
