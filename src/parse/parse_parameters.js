@@ -25,7 +25,9 @@ function parseFunctionParameters(parameterTokens, body, functionName) {
 
     const returns = parseReturns(parameterTokens, body);
     (0, logger_1.logDebug)("    returns: ");
-    (0, logger_1.logDebug)("       " + returns.type);
+    if (returns !== undefined && returns !== null){
+        (0, logger_1.logDebug)("       " + returns.type);
+    }
 
     const yields = parseYields(parameterTokens,body); // Returns undefined
     // (0, logger_1.logDebug)("    yields: ");
@@ -205,6 +207,7 @@ function parseKeywordArguments(parameters) {
 
 function parseReturns(parameters, body) {
     const returnType = parseReturnFromDefinition(parameters);
+    // Search failed in definition line, check the body
     if (returnType === null || isIterator(returnType.type)) {
         return parseFromBody(body, /return /);
     }

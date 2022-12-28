@@ -56,13 +56,19 @@ function parseOldDocstring(document, positionLine, docType = "function") {
 
         (0, logger_1.logDebug)("    Getting comment exceptions...");
         const exceptions = getCommentExceptions(body);
-        (0, logger_1.logDebug)("    Got comment exceptions:" + exceptions);
+        (0, logger_1.logDebug)("    Got comment exceptions:" + exceptions.map(a => a.type));
+        
+        (0, logger_1.logDebug)("    Getting comment returns...");
+        const returns = getCommentFunctionReturns(body);
+        (0, logger_1.logDebug)("    Got comment returns:" + returns.type);
+        
         return {
             name: undefined,
             args: args,
             kwargs: kwargs,
             decorators: [],
-            exceptions: exceptions
+            exceptions: exceptions,
+            returns: returns,
         };
     }
     return undefined;
@@ -142,7 +148,7 @@ function getCommentClassFunctions(lines) {
             var nameMatch = functNamePattern.exec(line);
             functions.push({
                 name: nameMatch[1],
-            })
+            });
         }
     }
     return functions;
@@ -198,6 +204,33 @@ function getCommentExceptions(lines) {
         }
     }
     return exceptions;
+}
+
+function getCommentFunctionReturns(lines) {
+    let foundReturns = false;
+    const returns = {};
+    const typePattern = /\s*(\w*):/;
+    for (var line of lines) {
+        if (line.includes("Returns:")) {
+            foundReturns = true;
+            continue;
+        } else if ((0, utilities_1.blankLine)(line)|| 
+        line.trim().indexOf("def ") === 0 || 
+        line.trim().indexOf("class ") === 0) {
+            foundReturns = false;
+        } else if (!line.includes(":")) {
+            continue; // Existing description may be over several lines
+        }
+
+        if (foundReturns === true) {
+            var typeMatch = typePattern.exec(line);
+            if (typeMatch !== undefined && typeMatch !== null){
+                returns.type = typeMatch[1];
+            }
+        }
+
+    }
+    return returns;
 }
 
 function getCommentFunctionArguments (lines) {
