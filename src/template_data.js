@@ -166,9 +166,3 @@ class TemplateClassData {
     }
 }
 exports.TemplateClassData = TemplateClassData;
-
-class TemplateGeneralData {
-    constructor (lineData) {
-        
-    }
-}

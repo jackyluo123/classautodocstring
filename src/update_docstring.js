@@ -1,8 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
 
-const path = require("path");
-const vs = require("vscode");
+const vs = require('vscode');
 const fs_1 = require("fs");
 const compare_docstring_parts_1 = require("./compare_docstring_parts");
 const parse_1 = require("./parse/index");
@@ -54,8 +53,8 @@ exports.UpdateAutoDocstring = class {
         logger_1.logDebug ("number of attrs to add " + toAddParams.attributes.length);
         logger_1.logDebug ("number of functions to add " + toAddParams.functions.length);
         logger_1.logDebug ("number of decorators to add " + toAddParams.decorators.length);
-        logger_1.logDebug ("number of exceptions to add " + toAddParams.exceptions.lenght);
-
+        logger_1.logDebug ("number of exceptions to add " + toAddParams.exceptions.length);
+        
         // The editor is not updated until the command is finished, so when new lines are added, the other adding functions
         // must know to skip these lines
 
@@ -106,6 +105,12 @@ exports.UpdateAutoDocstring = class {
         if (toAddParams.exceptions.length > 0) {
             logger_1.logDebug("Found exceptions to add");
             this.addFunctionExceptions(toAddParams.exceptions);
+        }
+
+        // **************** Exceptions **************//
+        if (toAddParams.returns.type !== undefined) {
+            logger_1.logDebug("Found returns to add: " + toAddParams.returns.type);
+            this.addFunctionReturns(toAddParams.returns);
         }
     }
     generateSnippet(templateName, indendation, info) {
@@ -532,6 +537,61 @@ exports.UpdateAutoDocstring = class {
                             this.editor.insertSnippet(snippet,insertPosition);
                             this.linesAdded++;
                         }
+                        this.linesAdded+=2;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
+    }
+
+    addFunctionReturns(returns){
+        const position = this.editor.selection.active.with(undefined, 0);
+        const docText = this.editor.document.getText();
+        const lines = docText.split ("\n");
+        let linePosition = position.line;
+        for (var i = linePosition - 1; i >= 0; i--) {
+            if (lines[i].trim().indexOf("Returns:") === 0){
+                // Found our header, append to list of returns
+                logger_1.logDebug("Found starting line at " + i);
+                const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
+                // Look for the blank ending line
+                for (let j = i+0; j < linePosition; j++) {
+                    if ((0, utilities_1.blankLine)(lines[j])) {
+                        // Found blank line, insert here
+                        logger_1.logDebug("Found blank line at " + j);
+                        var insertPosition = position.with(j+this.linesAdded,0);
+                        var snippet = this.generateSnippet("FunctionReturns",indentation,returns);
+                        this.editor.insertSnippet(snippet,insertPosition);
+                        this.linesAdded++;
+                        break;
+                    } 
+                }
+                break;
+            } else if (lines[i].trim().indexOf("def ") === 0) {
+                // Did not find our line, we need to insert a new section
+                // Search down till we find a blank line
+                // i + 1 because i should be the class definition line, we want the comment line underneath it
+                const indentation = utilities_1.getIndentation(lines[i+1]) + " ".repeat(this.editor.options.tabSize);
+                logger_1.logDebug("Did not find Returns header");
+                logger_1.logDebug("Indendation:|" + indentation + "|");
+                for (let j = i+0; j < linePosition; j++) {
+                    if ((0, utilities_1.blankLine)(lines[j]) && 
+                    lines[j+1].trim().indexOf("Args:") !== 0 && 
+                    lines[j+1].trim().indexOf("Decorators:") !== 0 &&
+                    lines[j+1].trim().indexOf("Raises:") !== 0) {
+                        logger_1.logDebug("Found blank line at " + j);
+                        this.editor.insertSnippet(
+                            new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Returns:\n"),
+                            position.with(j+this.linesAdded,0));
+                            // this.linesAdded++;
+                        j = j + 2; // because heading line plus blank line above it were added
+                        
+                        var insertPosition = position.with(j+this.linesAdded,0);
+                        var snippet = this.generateSnippet("FunctionReturns",indentation,returns);
+                        this.editor.insertSnippet(snippet,insertPosition);
+                        this.linesAdded++;
                         this.linesAdded+=2;
                         break;
                     }

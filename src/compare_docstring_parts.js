@@ -25,6 +25,7 @@ function compareFunctionDocstringParts (newDocstringParts, oldDocstringParts) {
         args: false,
         kwargs: false,
         exceptions: false,
+        returns: false
     };
 
     // ********************************* Compare the name of the function
@@ -145,7 +146,7 @@ function compareFunctionDocstringParts (newDocstringParts, oldDocstringParts) {
         
         let insertCounter = 0;
         for (let i = 0; i < newExceptions.length; i++) {
-            if (!inArray(newExceptions[i].var,oldExceptions.map(a => a.var))) {
+            if (!inArray(newExceptions[i].type,oldExceptions.map(a => a.type))) {
                 toAddExceptions.push({
                     index: i + insertCounter,
                     exception: newExceptions[i],
@@ -170,11 +171,24 @@ function compareFunctionDocstringParts (newDocstringParts, oldDocstringParts) {
     }
     (0, logger_1.logDebug)("    " + compareAnswer.exceptions);
 
+    // *********************************************** Compare the function returns
+    (0, logger_1.logDebug)("    Comparing returns...");
+    const newReturns = newDocstringParts.returns;
+    const oldReturns = oldDocstringParts.returns;
+    const toAddReturns = {};
+    // comment parsing uses object, but body parsing does not
+    if (oldReturns.type !== newReturns && newReturns !== undefined && newReturns !== null){
+        compareAnswer.returns = true;
+        toAddReturns.type = newReturns;
+    }
+    (0, logger_1.logDebug)("    " + compareAnswer.returns);
+
     return {
         decorators: toAddDecorators,
         args: toAddArgs,
         kwargs: toAddKwargs,
         exceptions: toAddExceptions,
+        returns: toAddReturns,
     };
 }
 
@@ -394,7 +408,7 @@ function compareClassDocstringParts (newDocstringParts, oldDocstringParts) {
         
         let insertCounter = 0;
         for (let i = 0; i < newExceptions.length; i++) {
-            if (!inArray(newExceptions[i].var,oldExceptions.map(a => a.var))) {
+            if (!inArray(newExceptions[i].type,oldExceptions.map(a => a.type))) {
                 toAddExceptions.push({
                     index: i + insertCounter,
                     exception: newExceptions[i],

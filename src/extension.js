@@ -13,9 +13,6 @@ const logger_1 = require("./logger");
 // This method is called when your extension is activated
 // Your extension is activated the very first time the command is executed
 function activate(context) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "autoclassdocstring" is now active!');
 
     // For functions
     context.subscriptions.push(vs.commands.registerCommand('autoclassdocstring.generateFunctionDocstring', () => {
@@ -25,7 +22,7 @@ function activate(context) {
             return autoDocstring.generateDocstring();
         }
         catch (error) {
-            console.log('Error occured');
+            logger_1.logInfo('Error occured');
         }
     }));
     context.subscriptions.push(vs.commands.registerCommand('autoclassdocstring.updateFunctionDocstring', () => {
@@ -35,7 +32,7 @@ function activate(context) {
             return autoDocstring.updateDocstring();
         }
         catch (error) {
-            console.log('Error occured');
+            logger_1.logInfo('Error occured');
         }
     }));
 
@@ -46,7 +43,7 @@ function activate(context) {
             return autoDocstring.generateDocstring();
         }
         catch (error) {
-            console.log('Error occured');
+            logger_1.logInfo('Error occured');
         }
     }));
     context.subscriptions.push(vs.commands.registerCommand('autoclassdocstring.updateClassDocstring', () => {
@@ -56,7 +53,7 @@ function activate(context) {
             return autoDocstring.updateDocstring();
         }
         catch (error) {
-            console.log('Error occured');
+            logger_1.logInfo('Error occured');
         }
     }));
 
@@ -126,13 +123,13 @@ function validFunctionEnterActivation(document,position) {
     const closedDocstring = (0, checks_1.docstringIsClosed)(docText, position.line, position.character, quoteStyle);
     const validDocstring = (0, checks_1.validExistingDocstring)(docText, position.line, quoteStyle, prefixStyle);
     // if (validPrefix) {
-    //     console.log("Valid Prefix detected");
+    //     logger_1.logDebug.log("Valid Prefix detected");
     // }
     if (closedDocstring) {
-        console.log ("Docstring is closed");
+        logger_1.logDebug ("Docstring is closed");
     }
     if (validDocstring) {
-        console.log ("Valid existing docstring");
+        logger_1.logDebug ("Valid existing docstring");
     }
     return (closedDocstring && validDocstring);
 }
