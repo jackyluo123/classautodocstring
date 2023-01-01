@@ -14,6 +14,7 @@ exports.UpdateAutoDocstring = class {
         this.editor = editor;
         this.docType = docType;
         this.linesAdded = 0;
+        this.quoteStyle = vs.workspace.getConfiguration("autoclassdocstring").get("quoteStyle").toString();
     }
     updateDocstring() {
         if (this.editor === undefined || this.editor === null) {
@@ -138,10 +139,10 @@ exports.UpdateAutoDocstring = class {
                 // Found our line, insert the lines
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j])) {
-                        // Found blank line, insert here
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
+                        // Found blank line or end of comment block, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         for (let k = 0; k < exceptions.length; k++) {
                             var exceptionInfo = exceptions[k];
@@ -162,12 +163,19 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Did not find Exceptions header");
                 logger_1.logDebug("Indendation:|" + indentation + "|");
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && 
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
                     lines[j+1].trim().indexOf("Inherits:") !== 0 && 
                     lines[j+1].trim().indexOf("Decorators:") !== 0 &&
                     lines[j+1].trim().indexOf("Attributes:") !== 0 && 
-                    lines[j+1].trim().indexOf("Methods:") !== 0){
-                        logger_1.logDebug("Found blank line at " + j);
+                    lines[j+1].trim().indexOf("Methods:") !== 0) || j+1 === linePosition) {
+
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found comment block end at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Raises:\n"),
                             position.with(j+this.linesAdded,0));
@@ -199,9 +207,9 @@ exports.UpdateAutoDocstring = class {
                 // Found our line, insert the lines
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j])) {
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
                         // Found blank line, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         for (let k = 0; k < functions.length; k++) {
@@ -223,11 +231,18 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Did not find Method header");
                 logger_1.logDebug("Indendation:|" + indentation + "|");
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && 
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
                     lines[j+1].trim().indexOf("Inherits:") !== 0 && 
                     lines[j+1].trim().indexOf("Decorators:") !== 0 && 
-                    lines[j+1].trim().indexOf("Attributes:") !== 0) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    lines[j+1].trim().indexOf("Attributes:") !== 0) || j+1 === linePosition) {
+
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found comment block end at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+                        
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Methods:\n"),
                             position.with(j+this.linesAdded,0));
@@ -260,9 +275,9 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
                 logger_1.logDebug("Indendation:|" + indentation + "|");
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j])) {
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
                         // Found blank line, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         for (let k = 0; k < attributes.length; k++) {
@@ -283,8 +298,17 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Indendation:|" + indentation + "|");
 
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && lines[j+1].trim().indexOf("Inherits:") !== 0 && lines[j+1].trim().indexOf("Decorators:") !== 0) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
+                    lines[j+1].trim().indexOf("Inherits:") !== 0 && 
+                    lines[j+1].trim().indexOf("Decorators:") !== 0) || j+1 === linePosition) {
+
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found end of comment block at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+                        
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Attributes:\n"),
                             position.with(j+this.linesAdded,0));
@@ -316,9 +340,9 @@ exports.UpdateAutoDocstring = class {
                 // Found our line, insert the lines
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j])) {
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
                         // Found blank line, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         for (let k = 0; k < args.length; k++) {
@@ -340,8 +364,15 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Did not find Argument header");
                 logger_1.logDebug("Indendation:|" + indentation + "|");
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j])) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    if ((0, utilities_1.blankLine)(lines[j]) || j+1 === linePosition) {
+
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found end of comment block at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Inherits:\n"),
                             position.with(j+this.linesAdded,0));
@@ -381,10 +412,10 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
                 logger_1.logDebug("Indendation:|" + indentation + "|");
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].includes(", optional):")) {
-                        // Found blank line, insert here
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].includes(", optional):") || lines[j].trim() === this.quoteStyle) {
+                        // Found blank line or keyword arguments started or comment block ended, insert here
                         logger_1.logDebug("Found blank line or kwarg at " + j);
                         for (let k = 0; k < args.length; k++) {
                             var argInfo = args[k];
@@ -404,13 +435,19 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Indendation:|" + indentation + "|");
 
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && 
-                    lines[j+1].trim().indexOf("Decorators:") !== 0) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
+                    lines[j+1].trim().indexOf("Decorators:") !== 0) || j+1 === linePosition) {
+                        
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found end of comment block at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+                        
                         this.editor.insertSnippet(
-                            new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Arguments:\n"),
+                            new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Args:\n"),
                             position.with(j+this.linesAdded,0));
-                            // this.linesAdded++;
                         j = j + 2; // because heading line and blank line above it were added
                         for (let k = 0; k < args.length; k++) {
                             var argInfo = args[k];
@@ -422,7 +459,7 @@ exports.UpdateAutoDocstring = class {
                         this.linesAdded+=2;
                         break;
                     }
-                }
+                } 
                 break;
             }
         }
@@ -439,9 +476,9 @@ exports.UpdateAutoDocstring = class {
                 // Found our line, insert the lines
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j])) {
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
                         // Found blank line, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         for (let k = 0; k < kwargs.length; k++) {
@@ -463,9 +500,16 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Did not find Argument header");
                 logger_1.logDebug("Indendation:|" + indentation + "|");
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && 
-                    lines[j+1].trim().indexOf("Decorators:") !== 0) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
+                    lines[j+1].trim().indexOf("Decorators:") !== 0) || j+1 === linePosition) {
+
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found comment block end at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+                        
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Args:\n"),
                             position.with(j+this.linesAdded,0));
@@ -497,9 +541,9 @@ exports.UpdateAutoDocstring = class {
                 // Found our line, insert the lines
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
-                for (let j = i+0; j < linePosition; j++) {
+                for (let j = i+0; j <= linePosition; j++) {
                     // Look for the blank ending line
-                    if ((0, utilities_1.blankLine)(lines[j])) {
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
                         // Found blank line, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         for (let k = 0; k < exceptions.length; k++) {
@@ -521,10 +565,16 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Did not find Exceptions header");
                 logger_1.logDebug("Indendation:|" + indentation + "|");
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && 
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
                     lines[j+1].trim().indexOf("Args:") !== 0 && 
-                    lines[j+1].trim().indexOf("Decorators:") !== 0) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    lines[j+1].trim().indexOf("Decorators:") !== 0) || j+1 === linePosition) {
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found comment block end at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+                        
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Raises:\n"),
                             position.with(j+this.linesAdded,0));
@@ -557,8 +607,8 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Found starting line at " + i);
                 const indentation = utilities_1.getIndentation(lines[i]) + " ".repeat(this.editor.options.tabSize);
                 // Look for the blank ending line
-                for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j])) {
+                for (let j = i+0; j <= linePosition; j++) {
+                    if ((0, utilities_1.blankLine)(lines[j]) || lines[j].trim() === this.quoteStyle) {
                         // Found blank line, insert here
                         logger_1.logDebug("Found blank line at " + j);
                         var insertPosition = position.with(j+this.linesAdded,0);
@@ -577,11 +627,17 @@ exports.UpdateAutoDocstring = class {
                 logger_1.logDebug("Did not find Returns header");
                 logger_1.logDebug("Indendation:|" + indentation + "|");
                 for (let j = i+0; j < linePosition; j++) {
-                    if ((0, utilities_1.blankLine)(lines[j]) && 
+                    if (((0, utilities_1.blankLine)(lines[j]) && 
                     lines[j+1].trim().indexOf("Args:") !== 0 && 
                     lines[j+1].trim().indexOf("Decorators:") !== 0 &&
-                    lines[j+1].trim().indexOf("Raises:") !== 0) {
-                        logger_1.logDebug("Found blank line at " + j);
+                    lines[j+1].trim().indexOf("Raises:") !== 0) || j+1 === linePosition) {
+                        if (!(0, utilities_1.blankLine)(lines[j]) && j+1 === linePosition) {
+                            j++;
+                            logger_1.logDebug("Found comment block end at " + j);
+                        } else {
+                            logger_1.logDebug("Found blank line at " + j);
+                        }
+                        
                         this.editor.insertSnippet(
                             new vs.SnippetString("\n" + utilities_1.getIndentation(lines[i+1]) + "Returns:\n"),
                             position.with(j+this.linesAdded,0));

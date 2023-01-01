@@ -177,9 +177,9 @@ function compareFunctionDocstringParts (newDocstringParts, oldDocstringParts) {
     const oldReturns = oldDocstringParts.returns;
     const toAddReturns = {};
     // comment parsing uses object, but body parsing does not
-    if (oldReturns.type !== newReturns && newReturns !== undefined && newReturns !== null){
+    if (oldReturns.type !== newReturns.type && newReturns.type !== undefined && newReturns.type !== null){
         compareAnswer.returns = true;
-        toAddReturns.type = newReturns;
+        toAddReturns.type = newReturns.type;
     }
     (0, logger_1.logDebug)("    " + compareAnswer.returns);
 
