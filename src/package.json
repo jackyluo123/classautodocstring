@@ -1,0 +1,113 @@
+{
+	"name": "autoclassdocstring",
+	"displayName": "autoclassdocstring",
+	"description": "Generates docstring for classes for class attributes",
+	"version": "1.0.3",
+	"engines": {
+		"vscode": "^1.64.0"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onLanguage:python"
+	],
+	"main": "/src/extension.js",
+	"contributes": {
+		"menus": {
+			"editor/context": [
+				{
+					"when": "",
+					"command": "autoclassdocstring.generateClassDocstring"
+				},
+				{
+					"when": "",
+					"command": "autoclassdocstring.updateClassDocstring"
+				},
+				{
+					"when": "",
+					"command": "autoclassdocstring.generateFunctionDocstring"
+				},
+				{
+					"when": "",
+					"command": "autoclassdocstring.updateFunctionDocstring"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "autoclassdocstring.generateClassDocstring",
+				"title": "Generate Class Docstring"
+			},
+			{
+				"command": "autoclassdocstring.updateClassDocstring",
+				"title": "Update Class Docstring"
+			},
+			{
+				"command": "autoclassdocstring.generateFunctionDocstring",
+				"title": "Generate Function Docstring"
+			},
+			{
+				"command": "autoclassdocstring.updateFunctionDocstring",
+				"title": "Update Function Docstring"
+			}
+		],
+		"configuration": {
+			"title": "Python Class Docstring Generator configuration",
+			"type": "object",
+			"properties": {
+				"autoclassdocstring.prefixStyle": {
+					"type": "string",
+					"default": "###",
+					"description": "Style for activating the command in the editor"
+				},
+				"autoclassdocstring.quoteStyle": {
+					"type": "string",
+					"default": "\"\"\"",
+					"description": "Style for the comment block in the editor"
+				},
+				"autoclassdocstring.docstringFormat": {
+					"type": "string",
+					"default": "google",
+					"description": "Which docstring format to use"
+				},
+				"autoclassdocstring.logLevel": {
+					"type": "string",
+					"default": "None",
+					"scope": "window",
+					"description": "Output log information (None, Info, Debug)"
+				}
+			}
+		}
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"build": "npm run build",
+		"pretest": "npm run compile && npm run lint",
+		"lint": "eslint src --ext ts",
+		"test": "node ./out/test/runTest.js"
+	},
+	"devDependencies": {
+		"@types/vscode": "^1.64.0",
+		"@types/glob": "^8.0.0",
+		"@types/mocha": "^10.0.0",
+		"@types/node": "16.x",
+		"@typescript-eslint/eslint-plugin": "^5.42.0",
+		"@typescript-eslint/parser": "^5.42.0",
+		"eslint": "^8.26.0",
+		"glob": "^8.0.3",
+		"mocha": "^10.1.0",
+		"typescript": "^4.8.4",
+		"@vscode/test-electron": "^2.2.0"
+	},
+	"dependencies": {
+		"mustache": "^4.2.0",
+		"ts-dedent": "^2.2.0"
+	},
+	"__metadata": {
+		"isApplicationScoped": false,
+		"installedTimestamp": 1670333413343
+	}
+}
