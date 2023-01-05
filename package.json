@@ -2,7 +2,7 @@
 	"name": "autoclassdocstring",
 	"displayName": "autoclassdocstring",
 	"description": "Generates docstring for classes for class attributes",
-	"version": "1.0.2",
+	"version": "1.0.3",
 	"engines": {
 		"vscode": "^1.64.0"
 	},
