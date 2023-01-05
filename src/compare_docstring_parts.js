@@ -176,10 +176,12 @@ function compareFunctionDocstringParts (newDocstringParts, oldDocstringParts) {
     const newReturns = newDocstringParts.returns;
     const oldReturns = oldDocstringParts.returns;
     const toAddReturns = {};
-    // comment parsing uses object, but body parsing does not
-    if (oldReturns.type !== newReturns.type && newReturns.type !== undefined && newReturns.type !== null){
-        compareAnswer.returns = true;
-        toAddReturns.type = newReturns.type;
+
+    if (newReturns !== undefined) { // When there is no function return, new parsing returns undefined instead of empty object
+        if (oldReturns.type !== newReturns.type && newReturns.type !== undefined && newReturns.type !== null){
+            compareAnswer.returns = true;
+            toAddReturns.type = newReturns.type;
+        }
     }
     (0, logger_1.logDebug)("    " + compareAnswer.returns);
 
